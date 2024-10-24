@@ -1,14 +1,15 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import logoSimilar from './logoSimilar.svg';
 import GaugeChart from 'react-gauge-chart';
-
+import { CartesianGrid, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 
 function App() {
   const [ip, setIp] = useState('192.168.0.180');
   const [porta, setPorta] = useState('2112');
   const [status, setStatus] = useState('');
+
 
   const [vazaoMassica, setVazaoMassica] = useState(null);
   const [vazaoVolumetrica, setVazaoVolumetrica] = useState(null);
@@ -99,38 +100,50 @@ function App() {
         <div className="dashboard">
           <div className="dashboard-item">
             <h3>Vazão Mássica</h3>
-            <GaugeChart 
-              id="gauge1" 
-              nrOfLevels={30} 
-              arcsLength={[0.2, 0.8]} 
-              colors={['#FF0000', '#00FF00']} 
-              percent={vazaoMassica / 100} // Ajuste a escala conforme necessário
-              textColor="#000"
-            />
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart
+                data={[{ name: 'Vazão Mássica', valor: vazaoMassica || 0 }]} // Array de um único valor
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Area type="monotone" dataKey="valor" stroke="#8884d8" fill="#8884d8" />
+              </AreaChart>
+            </ResponsiveContainer>
             <p>{vazaoMassica !== null ? vazaoMassica : 'N/A'}</p>
           </div>
           <div className="dashboard-item">
             <h3>Vazão Volumétrica</h3>
-            <GaugeChart 
-              id="gauge2" 
-              nrOfLevels={30} 
-              arcsLength={[0.2, 0.8]} 
-              colors={['#FF0000', '#00FF00']} 
-              percent={vazaoVolumetrica / 100} // Ajuste a escala conforme necessário
-              textColor="#000"
-            />
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart
+                data={[{ name: 'Vazão Volumétrica', valor: vazaoVolumetrica || 0 }]} // Array de um único valor
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Area type="monotone" dataKey="valor" stroke="#82ca9d" fill="#82ca9d" />
+              </AreaChart>
+            </ResponsiveContainer>
             <p>{vazaoVolumetrica !== null ? vazaoVolumetrica : 'N/A'}</p>
           </div>
           <div className="dashboard-item">
             <h3>Volume Total</h3>
-            <GaugeChart 
-              id="gauge3" 
-              nrOfLevels={30} 
-              arcsLength={[0.2, 0.8]} 
-              colors={['#FF0000', '#00FF00']} 
-              percent={volumeTotal} // Ajuste a escala conforme necessário
-              textColor="#000"
-            />
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart
+                data={[{ name: 'Volume Total', valor: volumeTotal || 0 }]} // Array de um único valor
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Area type="monotone" dataKey="valor" stroke="#ffc658" fill="#ffc658" />
+              </AreaChart>
+            </ResponsiveContainer>
             <p>{volumeTotal !== null ? volumeTotal : 'N/A'}</p>
           </div>
           <div className="dashboard-item">
