@@ -11,26 +11,36 @@ body {
 }
 
 .dashboard-container{
-  margin-top: 20px;
-  padding: 20px;
+  /* margin-top: 10px; */
+  /* padding: 20px; */
   border: transparent;
   border-radius: 8px;
-  background-color:transparent; 
+  /* background-color:yellow; */
+  height: auto; 
   /* color: #202127; */
   text-align: center;
   color: #035381;
+  width: 150vh;
 }
 
 .dashboard{
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0px;
+  max-height: 80vh; /* Defina um limite */
+  overflow-y: auto;
+  scrollbar-width: thin; /* Largura da barra de rolagem */
+  scrollbar-color: #035381 #f1f1f1; /* Cor do polegar e da trilha */
+}
+
+.dashboard::-webkit-scrollbar-button {
+  display: none; /* Remove as setas */
 }
 
 .dashboard-item{
   padding: 50px;
   border: transparent;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   background-color: transparent;
   text-align: center;
 }
