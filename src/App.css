@@ -43,7 +43,7 @@ body {
   /* border-radius: 5px; */
   background-color: transparent;
   text-align: center;
-  justify-content: center;
+  align-items: center;
 }
 
 .dashboard-item h3{
@@ -53,8 +53,7 @@ body {
 }
 
 .level-container {
-  margin-top: 75px;
-  width: 500px;
+  width: 450px;
   height: 50px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -63,17 +62,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* margin: 0 auto; */
 }
 
 .level-indicator {
-  width: 45px;
-  height: 45px;
-  background-color: #639ce7; /* cor da bolinha */
+  width: 40px;
+  height: 40px;
+  background-color: #3065ac; /* cor da bolinha */
   border-radius: 50%;
   position: absolute;
   transition: bottom 0.3s ease-in-out;
   opacity: 65%;
 }
+
 
 #titulo{
   font-size: 30px;

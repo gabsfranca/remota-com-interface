@@ -64,7 +64,7 @@ function App() {
         const rvolumeTotal = await mandaRequest('sRN mvVolumeSum');
         const valorVolumeTotal = isNaN(Number(rvolumeTotal)) ? 0 : parseFloat(Number(rvolumeTotal).toFixed(3));
         setVolumeTotal((prev) => [
-          ...prev.slice(-1200),
+          ...prev.slice(-120),
           { time: timestamp, valor: valorVolumeTotal }
         ]);
 
@@ -156,7 +156,7 @@ function App() {
             <div className="level-container">
               <div
                 className="level-indicator"
-                style={{ left: `${centroGravidade * 100}%` }}
+                style={{ left: `${(centroGravidade * 100) - 4}%` }}
               ></div>
             </div>
             <p>{centroGravidade !== null ? centroGravidade.toFixed(2) : 'N/A'}</p>
