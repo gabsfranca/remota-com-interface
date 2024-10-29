@@ -43,12 +43,36 @@ body {
   /* border-radius: 5px; */
   background-color: transparent;
   text-align: center;
+  justify-content: center;
 }
 
 .dashboard-item h3{
   margin: 0;
   font-size: 1.2em;
   margin-bottom: 3px;
+}
+
+.level-container {
+  margin-top: 75px;
+  width: 500px;
+  height: 50px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: transparent;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.level-indicator {
+  width: 45px;
+  height: 45px;
+  background-color: #639ce7; /* cor da bolinha */
+  border-radius: 50%;
+  position: absolute;
+  transition: bottom 0.3s ease-in-out;
+  opacity: 65%;
 }
 
 #titulo{

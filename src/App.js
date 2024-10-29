@@ -153,7 +153,13 @@ function App() {
           </div>
           <div className="dashboard-item">
             <h3>Centro de Gravidade</h3>
-            <p>{centroGravidade !== null ? centroGravidade : 'N/A'}</p>
+            <div className="level-container">
+              <div
+                className="level-indicator"
+                style={{ left: `${centroGravidade * 100}%` }}
+              ></div>
+            </div>
+            <p>{centroGravidade !== null ? centroGravidade.toFixed(2) : 'N/A'}</p>
           </div>
         </div>
       </div>

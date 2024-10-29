@@ -7,20 +7,40 @@ class TcpClient {
         this.port = port;
         this.conversora = new Conversora();
         this.conn = null;
+        this.buffer = '';
+        this.pendingResolve = null; // Resolver para o valor pendente
+        this.pendingReject = null;  // Reject para o valor pendente
     }
 
     conecta() {
         return new Promise((resolve, reject) => {
             this.conn = net.createConnection({ host: this.ip, port: this.port }, () => {
-                //console.log('+------------------------------------+');
                 console.log('conectado!');
-                //console.log('+------------------------------------+');
                 resolve();
             });
 
             this.conn.on('error', (error) => {
                 console.error('falha ao conectar: ', error);
                 reject(error);
+            });
+
+            // Listener de 'data' configurado apenas uma vez
+            this.conn.on('data', (data) => {
+                this.buffer += data.toString(); // Concatena os dados recebidos no buffer
+
+                if (this.pendingResolve) { // Checa se há uma promise pendente
+                    const regex = new RegExp(`${this.pendingRequest}\\s+([0-9A-Fa-f]{8})`);
+                    const match = this.buffer.match(regex);
+
+                    if (match) {
+                        const valorHex = match[1];
+                        const valorFloat = this.conversora.hex2float(valorHex);
+                        this.pendingResolve(valorFloat); // Resolve a promise pendente
+                        this.pendingResolve = null;
+                        this.pendingReject = null;
+                        this.buffer = ''; // Limpa o buffer após processar a resposta
+                    }
+                }
             });
         });
     }
@@ -40,31 +60,18 @@ class TcpClient {
 
     recebeYconverte(oque) {
         return new Promise((resolve, reject) => {
-            const buffer = [];
-            this.conn.on('data', (data) => {
-                buffer.push(data);
-                const response = Buffer.concat(buffer).toString();
-                // Lógica para processar a resposta como antes...
-                
-                const regex = new RegExp(`${oque}\\s+([0-9A-Fa-f]{8})`);
-                const match = response.match(regex);
+            this.pendingRequest = oque;
+            this.pendingResolve = resolve;
+            this.pendingReject = reject;
 
-                if (match) {
-                    const valorHex = match[1];
-                    const valorFloat = this.conversora.hex2float(valorHex);
-                    //console.log(${valorFloat.toFixed(4)}               |);
-                    //console.log('+------------------------------------+');
-                    resolve(valorFloat); // Retorna o valor convertido
-                } else {
-                    console.log('num deu pra le :(');
-                    reject(new Error('No match found'));
+            // Timeout para rejeitar caso não receba resposta dentro do tempo esperado
+            setTimeout(() => {
+                if (this.pendingReject) {
+                    this.pendingReject(new Error('Timeout ao receber resposta'));
+                    this.pendingResolve = null;
+                    this.pendingReject = null;
                 }
-            });
-
-            this.conn.on('error', (error) => {
-                console.error('erro ao receber dados: ', error);
-                reject(error);
-            });
+            }, 5000); // Ajuste o tempo de timeout conforme necessário
         });
     }
 
