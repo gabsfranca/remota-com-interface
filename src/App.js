@@ -13,6 +13,8 @@ function App() {
   const [volumeTotal, setVolumeTotal] = useState([]);
   const [centroGravidade, setCentroGravidade] = useState(null);
 
+  let coletaInterval = null;
+
   const conectar = async () => {
     const response = await window.electronAPI.connectToRemote(ip, porta);
     setStatus(response);
@@ -39,18 +41,18 @@ function App() {
       return 'erro ao conectar';
     }
 
-    setInterval(async () => {
+    if (coletaInterval) clearInterval(coletaInterval); // Limpa o intervalo existente para evitar múltiplas chamadas
+
+    const coletaDados = async () => {
       const timestamp = new Date().toLocaleTimeString();
 
       try {
         const rvazaoMassica = await mandaRequest('sRN mvMassFlow');
         const valorMassica = isNaN(Number(rvazaoMassica)) ? 0 : parseFloat(Number(rvazaoMassica).toFixed(3));
         setVazaoMassica((prev) => [
-          ...prev.slice(-120), // Mantém somente os últimos 10 valores para evitar sobrecarga de dados
-            
-          { time: timestamp, valor:valorMassica}
+          ...prev.slice(-120),
+          { time: timestamp, valor: valorMassica }
         ]);
-         
 
         const rvazaoVolumetrica = await mandaRequest('sRN mvVolumeFlow');
         const valorVolumetrico = isNaN(Number(rvazaoVolumetrica)) ? 0 : parseFloat(Number(rvazaoVolumetrica).toFixed(3));
@@ -60,18 +62,22 @@ function App() {
         ]);
 
         const rvolumeTotal = await mandaRequest('sRN mvVolumeSum');
-        const valorVolumeTotal = isNaN(Number(rvolumeTotal)) ? 0 :parseFloat(Number(rvolumeTotal).toFixed(3));
+        const valorVolumeTotal = isNaN(Number(rvolumeTotal)) ? 0 : parseFloat(Number(rvolumeTotal).toFixed(3));
         setVolumeTotal((prev) => [
           ...prev.slice(-1200),
-          { time: timestamp, valor: valorVolumeTotal}
+          { time: timestamp, valor: valorVolumeTotal }
         ]);
 
         const rcentroGravidade = await mandaRequest('sRN mvGravity');
-        setCentroGravidade(parseFloat(rcentroGravidade.toFixed(3)));
+        const valorCentroGravidade = isNaN(Number(rcentroGravidade)) ? 0 : parseFloat(Number(rcentroGravidade).toFixed(3));
+        setCentroGravidade(valorCentroGravidade);
       } catch (error) {
-        console.error('Erro na coleta de dados: ', error);
+        console.error(`Erro na coleta de dados: ${error}`);
       }
-    },800); // Atualização a cada 2 segundos
+    };
+
+    coletaInterval = setInterval(coletaDados, 2000);
+    coletaDados();
   };
 
   return (

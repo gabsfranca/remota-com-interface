@@ -12,9 +12,9 @@ class TcpClient {
     conecta() {
         return new Promise((resolve, reject) => {
             this.conn = net.createConnection({ host: this.ip, port: this.port }, () => {
-                console.log('+------------------------------------+');
-                console.log('|            conectado!              |');
-                console.log('+------------------------------------+');
+                //console.log('+------------------------------------+');
+                console.log('conectado!');
+                //console.log('+------------------------------------+');
                 resolve();
             });
 
@@ -52,8 +52,8 @@ class TcpClient {
                 if (match) {
                     const valorHex = match[1];
                     const valorFloat = this.conversora.hex2float(valorHex);
-                    console.log(`|              ${valorFloat.toFixed(4)}               |`);
-                    console.log('+------------------------------------+');
+                    //console.log(${valorFloat.toFixed(4)}               |);
+                    //console.log('+------------------------------------+');
                     resolve(valorFloat); // Retorna o valor convertido
                 } else {
                     console.log('num deu pra le :(');
