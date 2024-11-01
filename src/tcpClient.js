@@ -26,19 +26,30 @@ class TcpClient {
 
             // Listener de 'data' configurado apenas uma vez
             this.conn.on('data', (data) => {
-                this.buffer += data.toString(); // Concatena os dados recebidos no buffer
+                this.buffer += data.toString();
 
-                if (this.pendingResolve) { // Checa se há uma promise pendente
-                    const regex = new RegExp(`${this.pendingRequest}\\s+([0-9A-Fa-f]{8})`);
-                    const match = this.buffer.match(regex);
+                if (this.pendingResolve) {
+                    if (this.buffer.startsWith('x02sWA')) {
+                        console.log(this.buffer);
+                        // Regex simples para respostas que começam com 'sWA', apenas confirmando o comando
+                        const regexSWA = /^\x02sWA parFixedDensity\x03$/;
+                        if (regexSWA.test(this.buffer)) {
+                            this.pendingResolve('Densidade alterada com sucesso');
+                            this.pendingResolve = null;
+                            this.pendingReject = null;
+                            this.buffer = ''; 
+                        }
+                    }
+                    const regexSRA = new RegExp(`${this.pendingRequest}\\s+([0-9A-Fa-f]{8})`);
+                    const match = this.buffer.match(regexSRA);
 
                     if (match) {
                         const valorHex = match[1];
                         const valorFloat = this.conversora.hex2float(valorHex);
-                        this.pendingResolve(valorFloat); // Resolve a promise pendente
+                        this.pendingResolve(valorFloat); 
                         this.pendingResolve = null;
                         this.pendingReject = null;
-                        this.buffer = ''; // Limpa o buffer após processar a resposta
+                        this.buffer = ''; 
                     }
                 }
             });
@@ -48,6 +59,7 @@ class TcpClient {
     mandaRequest(msg) {
         return new Promise((resolve, reject) => {
             const request = `\x02${msg}\x03`; // STX e ETX em hex
+            //console.log(request);
             this.conn.write(request, (error) => {
                 if (error) {
                     console.error('erro mandando request: ', error);
@@ -59,6 +71,7 @@ class TcpClient {
     }
 
     recebeYconverte(oque) {
+        // console.log('mandando: ', oque);
         return new Promise((resolve, reject) => {
             this.pendingRequest = oque;
             this.pendingResolve = resolve;

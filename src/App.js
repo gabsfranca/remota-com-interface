@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import logoSimilar from './logoSimilar.svg';
 import { CartesianGrid, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -7,6 +7,7 @@ function App() {
   const [ip, setIp] = useState('192.168.0.180');
   const [porta, setPorta] = useState('2112');
   const [status, setStatus] = useState('');
+  const [densidade, setDensidade] = useState('');
 
   const [vazaoMassica, setVazaoMassica] = useState([]);
   const [vazaoVolumetrica, setVazaoVolumetrica] = useState([]);
@@ -22,6 +23,7 @@ function App() {
 
   const mandaRequest = async (mensagem) => {
     try {
+      console.log('enviando msg: ', mensagem);
       let response = await window.electronAPI.sendRequest(mensagem);
       if (response) {
         return response;
@@ -50,21 +52,21 @@ function App() {
         const rvazaoMassica = await mandaRequest('sRN mvMassFlow');
         const valorMassica = isNaN(Number(rvazaoMassica)) ? 0 : parseFloat(Number(rvazaoMassica).toFixed(3));
         setVazaoMassica((prev) => [
-          ...prev.slice(-120),
+          ...prev.slice(-1200),
           { time: timestamp, valor: valorMassica }
         ]);
 
         const rvazaoVolumetrica = await mandaRequest('sRN mvVolumeFlow');
         const valorVolumetrico = isNaN(Number(rvazaoVolumetrica)) ? 0 : parseFloat(Number(rvazaoVolumetrica).toFixed(3));
         setVazaoVolumetrica((prev) => [
-          ...prev.slice(-120),
+          ...prev.slice(-1200),
           { time: timestamp, valor: valorVolumetrico }
         ]);
 
         const rvolumeTotal = await mandaRequest('sRN mvVolumeSum');
         const valorVolumeTotal = isNaN(Number(rvolumeTotal)) ? 0 : parseFloat(Number(rvolumeTotal).toFixed(3));
         setVolumeTotal((prev) => [
-          ...prev.slice(-120),
+          ...prev.slice(-1200),
           { time: timestamp, valor: valorVolumeTotal }
         ]);
 
@@ -79,6 +81,24 @@ function App() {
     coletaInterval = setInterval(coletaDados, 2000);
     coletaDados();
   };
+
+  const alteraDensidade = async (dens) =>{
+    if (isNaN(dens) || dens <= 0){
+      console.log('insira um valor valido');
+      return 'insira um valor valido'
+    }
+    try{
+      console.log('tentando alterar densidade: ', dens);
+      const msg = `sWN parFixedDensity +${dens}`
+      await mandaRequest(msg);
+      setDensidade(dens);
+    }catch (error){
+      console.error('erro: ', error);
+      return 'erro ao alterar densidade'
+    }
+
+    console.log('densidade alterada!');
+  }
 
   return (
     <>
@@ -102,6 +122,12 @@ function App() {
         <button id="botaoConecta" onClick={conectaYmandaRequests}>Conectar</button>
         
         <p id="status">{status}</p>
+
+        <div className="input-densidade">
+          <label>Densidade:</label>
+          <input name="densidade" onChange={(e) => setDensidade(e.target.value)} />
+        </div>
+        <button id="botaoDensidade" onClick={() => alteraDensidade(densidade)}>Alterar densidade</button>
       </label>
 
       <div className="dashboard-container" height={500}>
