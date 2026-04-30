@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# 📡 Remote Device Interface
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> Desktop application for real-time monitoring of an industrial flow meter via TCP.
 
-## Available Scripts
+**Built for a real industrial environment and actively used in production.**
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 📌 Context
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Industrial flow meters expose operational data over TCP — but no usable interface.
+This app bridges that gap: connect to any compatible device by IP and port, pull live 
+readings continuously, and visualize them in a clean dashboard.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+It handles the full pipeline: TCP connection → hex payload → float conversion → live charts.
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 📊 Monitored indicators
 
-### `npm run build`
+- Mass flow rate
+- Volumetric flow rate
+- Total volume
+- Center of gravity
+- Configured density (read + write)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## ✨ Features
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Connect to remote device by IP and port
+- Periodic data polling with continuous dashboard updates
+- Time-series charts for all indicators
+- Density parameter adjustment directly from the interface
+- Hex-to-float conversion of raw device responses
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🛠️ Tech Stack
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+| Layer | Tech |
+|---|---|
+| Desktop shell | Electron |
+| Interface | React 18, Recharts |
+| Communication | Node.js TCP sockets (`net`) |
+| IPC | `ipcMain` / `ipcRenderer` / `preload` |
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🏗️ Architecture
 
-## Learn More
+```text
+main.js          → Electron window and IPC handlers
+src/preload.js   → Controlled API exposure to renderer
+src/tcpClient.js → TCP client and raw response handling
+src/Conversora.js→ Hex to float conversion
+src/App.js       → Main interface, polling and data display
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Communication between the React interface and the TCP layer goes through Electron's IPC 
+bridge — keeping the renderer process isolated from low-level networking.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## 💡 Technical highlights
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- **Hex-to-float conversion** of raw device payloads into readable operational values
+- **Secure IPC bridge** via `preload.js` — renderer never accesses Node.js APIs directly
+- **Periodic polling** with continuous chart updates for real-time monitoring
+- Clean separation between interface layer and communication layer
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🚀 Running locally
 
-### Making a Progressive Web App
+**Requirements:** Node.js, npm, and a TCP-compatible flow meter (or a compatible TCP endpoint for testing)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+npm install
+npm start
+```
 
-### Advanced Configuration
+To launch the desktop window:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```bash
+npm run electron
+```
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+> Connect to your device by entering its IP address and port in the interface.
